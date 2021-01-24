@@ -14,3 +14,10 @@ class PostListAPIView(ListAPIView):
 
 class PostDetailAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = []
+    serializer_class = PostSerializer
+    lookup_field = 'pk'
+    queryset = Post.objects.filter(is_published=True)
+
+    # def get_queryset(self, *args, **kwargs):
+    #     return Post.objects.get(pk=int(kwargs.get('pk')))
