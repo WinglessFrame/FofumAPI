@@ -1,10 +1,21 @@
 from rest_framework import serializers
-from rest_framework_recursive.fields import RecursiveField
+from rest_framework.validators import UniqueValidator
+from rest_framework.exceptions import ValidationError
 
 from ..models import Post, Comment
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    related_comments = serializers.SerializerMethodField()
+
+    def get_related_comments(self, obj):
+        if not obj.is_leaf_node():
+            children = obj.get_children()
+            serialized = CommentSerializer(children, many=True)
+            return serialized.data
+        else:
+            return []
+
     class Meta:
         model = Comment
         fields = (
@@ -12,16 +23,18 @@ class CommentSerializer(serializers.ModelSerializer):
             'text',
             'created_at',
             'updated_at',
+            'related_comments',
         )
-
-    # def get_author(self):
-    #     return self.author.username
 
 
 class PostSerializer(serializers.ModelSerializer):
     like_counter = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)
-    # #serializers.PrimaryKeyRelatedField(many=True, source='comments', queryset=Comment.objects.all())
+
+    def get_root_comments(self):
+        all_comments = [obj for obj in self.comments]
+        filtered = [obj for obj in all_comments if obj.is_root_node()]
+        return filtered
 
     def get_like_counter(self, obj):
         return obj.get_total_likes()
@@ -37,5 +50,4 @@ class PostSerializer(serializers.ModelSerializer):
             'updated_at',
             'like_counter',
             'comments',
-            # 'comment_list',
         )
