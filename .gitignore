@@ -3,7 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 # migration files
-migrations/
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
 # C extensions
 *.so
 # PyCharm idea
