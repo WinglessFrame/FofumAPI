@@ -19,9 +19,13 @@ class Post(models.Model):
     text = models.TextField(null=False, blank=False)
     is_published = models.BooleanField(default=False, null=False, blank=False)
     category = models.ForeignKey(Category, null=False, blank=False, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, related_name='posts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(User, related_name='post_likes', blank=True, null=False)
+
+    def get_total_likes(self):
+        return self.likes.count()
 
     def __str__(self):
         return self.title[:20]
