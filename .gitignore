@@ -6,6 +6,7 @@ __pycache__/
 **/migrations/**
 !**/migrations
 !**/migrations/__init__.py
+**/**/migrations
 # C extensions
 *.so
 # PyCharm idea
