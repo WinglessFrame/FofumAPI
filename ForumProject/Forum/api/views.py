@@ -1,33 +1,35 @@
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework import authentication
 
 from ..models import Post
 from .serializers import PostSerializer, PostDetailSerializer
 
 
-class PostListAPIView(ListAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    authentication_classes = []
+class PostListAPIView(ListCreateAPIView):
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    #authentication_classes = []
     serializer_class = PostSerializer
     queryset = Post.objects.filter(is_published=True)
 
 
 class PostDetailAPIView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     authentication_classes = []
     serializer_class = PostDetailSerializer
     lookup_field = 'pk'
     queryset = Post.objects.filter(is_published=True)
 
 
-class CommentLikeView(APIView):
-    authentication_classes = [IsAuthenticatedOrReadOnly]
+class PostLikeView(APIView):
+    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get(self):
-        print(dir(self.request))
-        #if self.request.user.is_authenticated():
-
-
-    # def get_queryset(self, *args, **kwargs):
-    #     return Post.objects.get(pk=int(kwargs.get('pk')))
+    def get(self, request, pk):
+        print(request.user)
+        if request.user.is_authenticated:
+            return Response(data={'You can like'}, status=200)
+        else:
+            return Response(data={'You are not allowed to like'}, status=400)

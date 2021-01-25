@@ -3,7 +3,7 @@ from django.urls import path, include
 from .views import (
     PostListAPIView,
     PostDetailAPIView,
-    CommentLikeView,
+    PostLikeView,
 )
 
 
@@ -11,5 +11,6 @@ app_name = 'forum-api'
 urlpatterns = [
     path('', PostListAPIView.as_view(), name='post-list'),
     path('<int:pk>/', PostDetailAPIView.as_view(), name='post-detail'),
-    path('<int:pl>/like/', PostDetailAPIView.as_view(), name='post-like'),
+    path('<int:pk>/like/', PostLikeView.as_view(), name='post-like'),
+
 ]
