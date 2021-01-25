@@ -17,6 +17,7 @@ class PostListAPIView(ListCreateAPIView):
 
 
 class PostDetailAPIView(RetrieveUpdateDestroyAPIView):
+
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = PostDetailSerializer
