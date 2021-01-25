@@ -2,7 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+# migration files
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+**/**/migrations
 # C extensions
 *.so
 # PyCharm idea
@@ -129,3 +133,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/ForumProject/Forum/migrations/
