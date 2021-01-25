@@ -19,6 +19,7 @@ class Post(models.Model):
     text = models.TextField(null=False, blank=False)
     is_published = models.BooleanField(default=False, null=False, blank=False)
     category = models.ForeignKey(Category, null=False, blank=False, on_delete=models.CASCADE)
+
     author = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, related_name='posts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -26,6 +27,7 @@ class Post(models.Model):
 
     def get_total_likes(self):
         return self.likes.count()
+
 
     def __str__(self):
         return self.title[:20]
@@ -38,6 +40,7 @@ class Post(models.Model):
 class Comment(MPTTModel):
     text = models.TextField(null=False, blank=False)
     author = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
+
     related_to = models.ForeignKey(Post, blank=True, null=True, on_delete=models.CASCADE, related_name='comments')
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,6 +51,7 @@ class Comment(MPTTModel):
             return f"{self.related_to.pk}/Root comment"
         else:
             return f'{self.parent}/{self.pk}'
+
     #
     # class MPTTMeta:
     #     order_insertion_by = likeCounter #TODO

@@ -3,11 +3,13 @@ from .models import Post, Category, Comment
 
 
 class PostAdmin(admin.ModelAdmin):
+
     list_display = ('pk', 'author', 'title', 'is_published', 'text', 'category')
 
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk', 'author', 'related_to', 'parent', 'text')
+
 
 
 admin.site.register(Post, PostAdmin)
