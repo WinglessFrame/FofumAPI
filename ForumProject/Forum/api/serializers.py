@@ -1,8 +1,12 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from rest_framework.exceptions import ValidationError
 
+from rest_framework.reverse import reverse
+from django.contrib.auth import get_user_model
 from ..models import Post, Comment
+
+
+User = get_user_model()
+
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -29,15 +33,23 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     like_counter = serializers.SerializerMethodField()
-    comments = CommentSerializer(many=True, read_only=True)
 
-    def get_root_comments(self):
-        all_comments = [obj for obj in self.comments]
-        filtered = [obj for obj in all_comments if obj.is_root_node()]
-        return filtered
+    comments_count = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    detail = serializers.SerializerMethodField()
+
+    def get_category(self, obj):
+        return obj.category.title
 
     def get_like_counter(self, obj):
-        return obj.get_total_likes()
+        return obj.likes.count()
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()
+
+    def get_detail(self, obj):
+        request = self.context.get('request')
+        return reverse('forum-api:post-detail', args=[obj.pk], request=request)
 
     class Meta:
         model = Post
@@ -49,5 +61,48 @@ class PostSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'like_counter',
-            'comments',
+            'comments_count',
+            'detail',
+        )
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    like_counter = serializers.SerializerMethodField()
+    like_status = serializers.SerializerMethodField()
+    like_url = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True, read_only=True)
+    category = serializers.SerializerMethodField()
+
+    def get_category(self, obj):
+        return obj.category.title
+
+    def get_like_counter(self, obj):
+        return obj.likes.count()
+
+    def get_like_url(self, obj):
+        request = self.context.get('request')
+        return reverse('forum-api:post-like', args=[obj.pk], request=request)
+
+    def get_like_status(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        if user.is_authenticated:
+            status = (obj in user.post_likes.all())
+            return status
+        else: return "Requires authentication"
+
+
+    class Meta:
+        model = Post
+        fields = (
+            'title',
+            'text',
+            'category',
+            'author',
+            'created_at',
+            'updated_at',
+            'like_counter',
+
+            'like_status',
+            'like_url',
         )

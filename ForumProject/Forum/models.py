@@ -25,9 +25,6 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     likes = models.ManyToManyField(User, related_name='post_likes', blank=True, null=False)
 
-    def get_total_likes(self):
-        return self.likes.count()
-
 
     def __str__(self):
         return self.title[:20]
