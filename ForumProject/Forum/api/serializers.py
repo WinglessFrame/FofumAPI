@@ -42,7 +42,15 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.likes.count()
 
     def get_comments_count(self, obj):
-        return obj.comments.count()
+        if obj.comments.count() == 0:
+            return 0
+        else:
+            comments = obj.comments.all()
+            total = 0
+            for parent_comment in comments:
+                comment_family = parent_comment.get_family()
+                total += comment_family.count()
+            return total
 
     def get_detail(self, obj):
         request = self.context.get('request')

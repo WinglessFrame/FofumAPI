@@ -19,7 +19,6 @@ class Post(models.Model):
     text = models.TextField(null=False, blank=False)
     is_published = models.BooleanField(default=False, null=False, blank=False)
     category = models.ForeignKey(Category, null=False, blank=False, on_delete=models.CASCADE)
-
     author = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, related_name='posts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
