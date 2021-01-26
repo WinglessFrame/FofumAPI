@@ -1,10 +1,12 @@
 from rest_framework import serializers
+
 from rest_framework.reverse import reverse
 from django.contrib.auth import get_user_model
 from ..models import Post, Comment
 
 
 User = get_user_model()
+
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -31,6 +33,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     like_counter = serializers.SerializerMethodField()
+
     comments_count = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
     detail = serializers.SerializerMethodField()
@@ -96,6 +99,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             return status
         else: return "Requires authentication"
 
+
     class Meta:
         model = Post
         fields = (
@@ -106,7 +110,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'like_counter',
+
             'like_status',
             'like_url',
-            'comments',
         )

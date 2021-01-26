@@ -12,5 +12,4 @@ urlpatterns = [
     path('', PostListAPIView.as_view(), name='post-list'),
     path('<int:pk>/', PostDetailAPIView.as_view(), name='post-detail'),
     path('<int:pk>/like/', PostLikeView.as_view(), name='post-like'),
-
 ]
