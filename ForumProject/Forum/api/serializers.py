@@ -1,7 +1,7 @@
 from rest_framework import serializers
-
 from rest_framework.reverse import reverse
 from django.contrib.auth import get_user_model
+
 from ..models import Post, Comment
 
 User = get_user_model()
@@ -29,7 +29,7 @@ class CommentSerializer(serializers.ModelSerializer):
         )
 
 
-class PostSerializer(serializers.ModelSerializer):
+class PostListSerializer(serializers.ModelSerializer):
     like_counter = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
@@ -73,27 +73,44 @@ class PostSerializer(serializers.ModelSerializer):
 
 class PostDetailSerializer(serializers.ModelSerializer):
     like_counter = serializers.SerializerMethodField()
+    dislike_counter = serializers.SerializerMethodField()
     like_dislike_status = serializers.SerializerMethodField()
     like_unlike_url = serializers.SerializerMethodField()
+    dislike_undislike_url = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)
-    category = serializers.SerializerMethodField()
-
-    def get_category(self, obj):
-        return obj.category.title
+    category = serializers.StringRelatedField()
 
     def get_like_counter(self, obj):
         return obj.likes.count()
 
+    def get_dislike_counter(self, obj):
+        return obj.dislikes.count()
+
     def get_like_unlike_url(self, obj):
         request = self.context.get('request')
+        if request.user in obj.dislikes.all():
+            return "Undislike post first"
         return reverse('forum-api:post-like', args=[obj.pk], request=request)
+
+    def get_dislike_undislike_url(self, obj):
+        request = self.context.get('request')
+        if request.user in obj.likes.all():
+            return "Unlike post first"
+        return reverse('forum-api:post-dislike', args=[obj.pk], request=request)
 
     def get_like_dislike_status(self, obj):
         request = self.context.get('request')
         user = request.user
         if user.is_authenticated:
-            status = (obj in user.post_likes.all())
-            return "liked" if status else 'not-liked'
+            status = obj in user.post_likes.all()
+            if status:
+                return "liked"
+            else:
+                status = obj in user.post_dislikes.all()
+                if status:
+                    return "disliked"
+                else:
+                    return "not-rated"
         else:
             return "Requires authentication"
 
@@ -107,7 +124,9 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'like_counter',
+            'dislike_counter',
             'like_dislike_status',
             'like_unlike_url',
+            'dislike_undislike_url',
             'comments',
         )
