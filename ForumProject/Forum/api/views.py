@@ -70,8 +70,7 @@ class CommentLikeView(APIView):
         comment = Comment.objects.get(pk=pk)
         user = request.user
         if user.is_authenticated and comment:
-            root = comment.get_root()
-            related_to = root.related_to.pk
+            related_to = comment.related_to.pk
             if comment in request.user.comment_likes.all():
                 user.comment_likes.remove(comment)
                 return redirect('forum-api:post-detail', pk=related_to)
@@ -90,8 +89,7 @@ class CommentDislikeView(APIView):
         comment = Comment.objects.get(pk=pk)
         user = request.user
         if user.is_authenticated and comment:
-            root = comment.get_root()
-            related_to = root.related_to.pk
+            related_to = comment.related_to.pk
             if comment in request.user.comment_dislikes.all():
                 user.comment_dislikes.remove(comment)
                 return redirect('forum-api:post-detail', pk=related_to)

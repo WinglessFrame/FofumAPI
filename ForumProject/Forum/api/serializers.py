@@ -1,9 +1,4 @@
 from rest_framework import serializers
-
-from rest_framework.reverse import reverse
-from django.contrib.auth import get_user_model
-
-
 from rest_framework.reverse import reverse
 from django.contrib.auth import get_user_model
 from ..models import Post, Comment
@@ -133,12 +128,12 @@ class PostDetailSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         context = self.context
         objects = obj.comments.all()
-        serializer = CommentSerializer(objects, many=True, context=context)
+        root_objects = [el for el in objects if el.is_root_node()]  # To remove duplicates
+        serializer = CommentSerializer(root_objects, many=True, context=context)
         return serializer.data
 
     def get_like_counter(self, obj):
         return obj.likes.count()
-
 
     def get_dislike_counter(self, obj):
         return obj.dislikes.count()
@@ -186,46 +181,4 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'like_unlike_url',
             'dislike_undislike_url',
             'comments',
-        )
-
-
-class PostDetailSerializer(serializers.ModelSerializer):
-    like_counter = serializers.SerializerMethodField()
-    like_status = serializers.SerializerMethodField()
-    like_url = serializers.SerializerMethodField()
-    comments = CommentSerializer(many=True, read_only=True)
-    category = serializers.SerializerMethodField()
-
-    def get_category(self, obj):
-        return obj.category.title
-
-    def get_like_counter(self, obj):
-        return obj.likes.count()
-
-    def get_like_url(self, obj):
-        request = self.context.get('request')
-        return reverse('forum-api:post-like', args=[obj.pk], request=request)
-
-    def get_like_status(self, obj):
-        request = self.context.get('request')
-        user = request.user
-        if user.is_authenticated:
-            status = (obj in user.post_likes.all())
-            return status
-        else: return "Requires authentication"
-
-
-    class Meta:
-        model = Post
-        fields = (
-            'title',
-            'text',
-            'category',
-            'author',
-            'created_at',
-            'updated_at',
-            'like_counter',
-
-            'like_status',
-            'like_url',
         )
