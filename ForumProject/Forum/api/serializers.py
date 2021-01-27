@@ -125,7 +125,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
     like_unlike_url = serializers.SerializerMethodField()
     dislike_undislike_url = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
-    category = serializers.StringRelatedField()
 
     def get_comments(self, obj):
         context = self.context
