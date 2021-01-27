@@ -6,7 +6,11 @@ from rest_framework import authentication
 from django.shortcuts import redirect
 
 from ..models import Post, Comment
-from .serializers import PostListSerializer, PostDetailSerializer
+from .serializers import (
+    PostListSerializer,
+    PostDetailSerializer,
+    CommentDetailSerializer,
+)
 
 
 # POSTS VIEWS
@@ -98,3 +102,11 @@ class CommentDislikeView(APIView):
                 return redirect('forum-api:post-detail', pk=related_to)
         else:
             return Response(data={'Requires authorization'}, status=403)
+
+
+class CommentDetailView(RetrieveUpdateDestroyAPIView):
+    authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = CommentDetailSerializer
+    lookup_field = 'pk'
+    queryset = Comment.objects.all()

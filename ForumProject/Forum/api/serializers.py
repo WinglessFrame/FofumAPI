@@ -14,6 +14,14 @@ class CommentSerializer(serializers.ModelSerializer):
     dislike_undislike_url = serializers.SerializerMethodField()
     like_counter = serializers.SerializerMethodField()
     dislike_counter = serializers.SerializerMethodField()
+    change = serializers.SerializerMethodField()
+
+    def get_change(self, obj):
+        request = self.context.get('request')
+        if request.user == obj.author:
+            return reverse('forum-api:comment-detail', args=[obj.pk], request=request)
+        else:
+            return "Forbidden"
 
     def get_like_counter(self, obj):
         return obj.likes.count()
@@ -69,9 +77,17 @@ class CommentSerializer(serializers.ModelSerializer):
             'like_dislike_status',
             'like_unlike_url',
             'dislike_undislike_url',
+            'change',
             'related_comments',
         )
 
+
+class CommentDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = (
+            'text',
+        )
 
 # POST SERIALIZERS
 class PostListSerializer(serializers.ModelSerializer):
@@ -87,15 +103,7 @@ class PostListSerializer(serializers.ModelSerializer):
         return obj.dislikes.count()
 
     def get_comments_count(self, obj):
-        if obj.comments.count() == 0:
-            return 0
-        else:
-            comments = obj.comments.all()
-            total = 0
-            for parent_comment in comments:
-                comment_family = parent_comment.get_family()
-                total += comment_family.count()
-            return total
+        return obj.comments.count()
 
     def get_detail(self, obj):
         request = self.context.get('request')
