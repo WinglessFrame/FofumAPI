@@ -30,12 +30,12 @@ class PostLikeView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request, pk):
-        print(request.user)
         post = Post.objects.get(pk=pk)
         user = request.user
         if user.is_authenticated and post:
             if post in request.user.post_likes.all():
-                return Response(data={"You have already liked this post"})
+                user.post_likes.remove(post)
+                return redirect('forum-api:post-detail', pk=pk)
             else:
                 user.post_likes.add(post)
                 return redirect('forum-api:post-detail', pk=pk)
