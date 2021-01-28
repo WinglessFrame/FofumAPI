@@ -11,6 +11,7 @@ from .serializers import (
     PostDetailSerializer,
     CommentDetailSerializer,
 )
+from .permissions import IsAuthorOrReadOnly
 
 
 # POSTS VIEWS
@@ -23,7 +24,7 @@ class PostListAPIView(ListCreateAPIView):
 
 class PostDetailAPIView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
     serializer_class = PostDetailSerializer
     lookup_field = 'pk'
     queryset = Post.objects.filter(is_published=True)

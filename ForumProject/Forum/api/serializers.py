@@ -39,12 +39,16 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_dislike_undislike_url(self, obj):
         request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
         if obj in request.user.comment_likes.all():
             return "Unlike post first"
         return reverse('forum-api:comment-dislike', args=[obj.pk], request=request)
 
     def get_like_unlike_url(self, obj):
         request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
         if obj in request.user.comment_dislikes.all():
             return "Undislike post first"
         return reverse('forum-api:comment-like', args=[obj.pk], request=request)
@@ -52,6 +56,8 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_like_dislike_status(self, obj):
         request = self.context.get('request')
         user = request.user
+        if user.is_anonymous:
+            return "Authorization required"
         if user.is_authenticated:
             status = obj in user.comment_likes.all()
             if status:
@@ -148,12 +154,16 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     def get_like_unlike_url(self, obj):
         request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
         if request.user in obj.dislikes.all():
             return "Undislike post first"
         return reverse('forum-api:post-like', args=[obj.pk], request=request)
 
     def get_dislike_undislike_url(self, obj):
         request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
         if request.user in obj.likes.all():
             return "Unlike post first"
         return reverse('forum-api:post-dislike', args=[obj.pk], request=request)
@@ -161,6 +171,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
     def get_like_dislike_status(self, obj):
         request = self.context.get('request')
         user = request.user
+        if user.is_anonymous:
+            return "Authorization required"
         if user.is_authenticated:
             status = obj in user.post_likes.all()
             if status:
