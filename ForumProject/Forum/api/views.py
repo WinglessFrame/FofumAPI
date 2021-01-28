@@ -1,4 +1,8 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    CreateAPIView,
+)
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -111,3 +115,29 @@ class CommentDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = CommentDetailSerializer
     lookup_field = 'pk'
     queryset = Comment.objects.all()
+
+
+class CommentCreateView(CreateAPIView):
+    authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CommentDetailSerializer
+
+    def post(self, request, *args, **kwargs):
+        post_pk = kwargs.get('post_pk', None)
+        comment_pk = kwargs.get('comment_pk', None)
+        if comment_pk:
+            parent = Comment.objects.get(pk=comment_pk)
+        else:
+            parent = False
+        text = request.POST.get('text', None)
+        if not text:
+            return Response({'message': 'text required'}, status=403)
+        author = request.user
+        related_to = Post.objects.get(pk=post_pk)
+        if not related_to:
+            return Response({'message': 'Post doesnt exist'}, status=404)
+        if parent:
+            obj = Comment.objects.create(text=text, author=author, related_to=related_to, parent=parent)
+        else:
+            obj = Comment.objects.create(text=text, author=author, related_to=related_to)
+        return redirect('forum-api:post-detail', pk=post_pk)
