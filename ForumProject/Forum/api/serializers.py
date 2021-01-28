@@ -15,6 +15,12 @@ class CommentSerializer(serializers.ModelSerializer):
     like_counter = serializers.SerializerMethodField()
     dislike_counter = serializers.SerializerMethodField()
     change = serializers.SerializerMethodField()
+    to_comment = serializers.SerializerMethodField()
+
+    def get_to_comment(self, obj):
+        request = self.context.get('request')
+        related_to = self.context.get('related_to')
+        return reverse('forum-api:comment-comment', args=[related_to, obj.pk], request=request)
 
     def get_change(self, obj):
         request = self.context.get('request')
@@ -84,6 +90,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'like_unlike_url',
             'dislike_undislike_url',
             'change',
+            'to_comment',
             'related_comments',
         )
 
@@ -137,11 +144,17 @@ class PostDetailSerializer(serializers.ModelSerializer):
     like_dislike_status = serializers.SerializerMethodField()
     like_unlike_url = serializers.SerializerMethodField()
     dislike_undislike_url = serializers.SerializerMethodField()
+    to_comment = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+
+    def get_to_comment(self, obj):
+        request = self.context.get('request')
+        return reverse('forum-api:post-comment', args=[obj.pk], request=request)
 
     def get_comments(self, obj):
         context = self.context
         objects = obj.comments.all()
+        context['related_to'] = obj.pk
         root_objects = [el for el in objects if el.is_root_node()]  # To remove duplicates
         serializer = CommentSerializer(root_objects, many=True, context=context)
         return serializer.data
@@ -200,5 +213,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'like_dislike_status',
             'like_unlike_url',
             'dislike_undislike_url',
+            'to_comment',
             'comments',
         )

@@ -137,7 +137,7 @@ class CommentCreateView(CreateAPIView):
         if not related_to:
             return Response({'message': 'Post doesnt exist'}, status=404)
         if parent:
-            obj = Comment.objects.create(text=text, author=author, related_to=related_to, parent=parent)
+            Comment.objects.create(text=text, author=author, related_to=related_to, parent=parent)
         else:
-            obj = Comment.objects.create(text=text, author=author, related_to=related_to)
+            Comment.objects.create(text=text, author=author, related_to=related_to)
         return redirect('forum-api:post-detail', pk=post_pk)
