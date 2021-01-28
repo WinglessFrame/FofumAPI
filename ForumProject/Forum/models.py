@@ -45,9 +45,7 @@ class Comment(MPTTModel):
 
     def __str__(self):
         if self.is_root_node():
-            return f"{self.related_to.pk}/Root comment {self.pk}"
-        else:
-            return f'{self.parent}/{self.pk}'
+            return f"{self.related_to.pk}/{self.pk}"
 
     #
     # class MPTTMeta:

@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import authentication
 from django.shortcuts import redirect
 
-from ..models import Post, Comment
+from ..models import Post, Comment, Category
 from .serializers import (
     PostListSerializer,
     PostDetailSerializer,
@@ -25,13 +25,33 @@ class PostListAPIView(ListCreateAPIView):
     serializer_class = PostListSerializer
     queryset = Post.objects.filter(is_published=True)
 
+    def post(self, request, *args, **kwargs):
+        title = request.POST.get('title', None)
+        if not title:
+            return Response({'message': 'Title is required'}, status=403)
+        text = request.POST.get('text', None)
+        if not text:
+            return Response({'message': 'Text is required'}, status=403)
+        category_id = request.POST.get('category', None)
+        if not category_id:
+            return Response({'message': 'Category field is required'}, status=403)
+        category = Category.objects.get(pk=category_id)
+        if not category:
+            return Response({'message': 'Category with this id does not exist'}, status=404)
+        author = request.user
+        if not author.is_authenticated:
+            return Response({'message': 'Authorization is required'}, status=403)
+        obj = Post.objects.create(title=title, text=text, category=category, author=author)
+        return redirect('forum-api:post-detail', pk=obj.pk)
+
+
 
 class PostDetailAPIView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [IsAuthorOrReadOnly]
     serializer_class = PostDetailSerializer
     lookup_field = 'pk'
-    queryset = Post.objects.filter(is_published=True)
+    queryset = Post.objects.all()
 
 
 class PostLikeView(APIView):
