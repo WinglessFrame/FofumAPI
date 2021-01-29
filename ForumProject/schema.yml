@@ -1,0 +1,760 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /auth/register/:
+    post:
+      operationId: auth_register_create
+      description: ''
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegister'
+          description: ''
+  /auth/token/:
+    post:
+      operationId: auth_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTokenObtainPair'
+          description: ''
+  /auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /forum/api/:
+    get:
+      operationId: forum_api_list
+      description: ''
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostList'
+          description: ''
+    post:
+      operationId: forum_api_create
+      description: ''
+      tags:
+      - forum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostList'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostList'
+          description: ''
+  /forum/api/{id}/:
+    get:
+      operationId: forum_api_retrieve
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostDetail'
+          description: ''
+    put:
+      operationId: forum_api_update
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostDetail'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostDetail'
+          description: ''
+    patch:
+      operationId: forum_api_partial_update
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPostDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPostDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPostDetail'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostDetail'
+          description: ''
+    delete:
+      operationId: forum_api_destroy
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /forum/api/{id}/dislike/:
+    post:
+      operationId: forum_api_dislike_create
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /forum/api/{id}/like/:
+    post:
+      operationId: forum_api_like_create
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /forum/api/{post_pk}/{comment_pk}/comment/:
+    post:
+      operationId: forum_api_comment_create_2
+      description: ''
+      parameters:
+      - in: path
+        name: comment_pk
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: post_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - forum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentDetail'
+          description: ''
+  /forum/api/{post_pk}/comment/:
+    post:
+      operationId: forum_api_comment_create
+      description: ''
+      parameters:
+      - in: path
+        name: post_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - forum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentDetail'
+          description: ''
+  /forum/api/comments/{id}/:
+    get:
+      operationId: forum_api_comments_retrieve
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentDetail'
+          description: ''
+    put:
+      operationId: forum_api_comments_update
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentDetail'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentDetail'
+          description: ''
+    patch:
+      operationId: forum_api_comments_partial_update
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentDetail'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentDetail'
+          description: ''
+    delete:
+      operationId: forum_api_comments_destroy
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /forum/api/comments/{id}/dislike/:
+    post:
+      operationId: forum_api_comments_dislike_create
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /forum/api/comments/{id}/like/:
+    post:
+      operationId: forum_api_comments_like_create
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /forum/api/users/:
+    get:
+      operationId: forum_api_users_list
+      description: ''
+      tags:
+      - forum
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserStatistics'
+          description: ''
+components:
+  schemas:
+    CommentDetail:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+      - text
+    CustomTokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    PatchedCommentDetail:
+      type: object
+      properties:
+        text:
+          type: string
+    PatchedPostDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 256
+        text:
+          type: string
+        category:
+          type: integer
+        author:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        like_counter:
+          type: string
+          readOnly: true
+        dislike_counter:
+          type: string
+          readOnly: true
+        like_dislike_status:
+          type: string
+          readOnly: true
+        like_unlike_url:
+          type: string
+          readOnly: true
+        dislike_undislike_url:
+          type: string
+          readOnly: true
+        to_comment:
+          type: string
+          readOnly: true
+        comments:
+          type: string
+          readOnly: true
+    PostDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 256
+        text:
+          type: string
+        category:
+          type: integer
+        author:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        like_counter:
+          type: string
+          readOnly: true
+        dislike_counter:
+          type: string
+          readOnly: true
+        like_dislike_status:
+          type: string
+          readOnly: true
+        like_unlike_url:
+          type: string
+          readOnly: true
+        dislike_undislike_url:
+          type: string
+          readOnly: true
+        to_comment:
+          type: string
+          readOnly: true
+        comments:
+          type: string
+          readOnly: true
+      required:
+      - author
+      - category
+      - comments
+      - created_at
+      - dislike_counter
+      - dislike_undislike_url
+      - like_counter
+      - like_dislike_status
+      - like_unlike_url
+      - text
+      - title
+      - to_comment
+      - updated_at
+    PostList:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 256
+        text:
+          type: string
+        category:
+          type: integer
+        author:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        like_counter:
+          type: string
+          readOnly: true
+        dislike_counter:
+          type: string
+          readOnly: true
+        comments_count:
+          type: string
+          readOnly: true
+        detail:
+          type: string
+          readOnly: true
+      required:
+      - author
+      - category
+      - comments_count
+      - created_at
+      - detail
+      - dislike_counter
+      - like_counter
+      - text
+      - title
+      - updated_at
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    UserRegister:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          maxLength: 128
+        password2:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+      required:
+      - message
+      - password
+      - password2
+      - token
+      - username
+    UserStatistics:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        total_likes:
+          type: string
+          readOnly: true
+        total_dislikes:
+          type: string
+          readOnly: true
+        total_posts:
+          type: string
+          readOnly: true
+        total_published_posts:
+          type: string
+          readOnly: true
+        total_comments:
+          type: string
+          readOnly: true
+      required:
+      - total_comments
+      - total_dislikes
+      - total_likes
+      - total_posts
+      - total_published_posts
+      - username
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: Session
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

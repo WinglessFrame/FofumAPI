@@ -163,6 +163,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         context = self.context
+        context['related_to'] = obj.pk
         objects = obj.comments.all()
         serializer = CommentSerializer(objects, many=True, context=context)
         return serializer.data
