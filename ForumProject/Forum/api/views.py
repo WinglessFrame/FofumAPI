@@ -15,7 +15,7 @@ from .serializers import (
     PostDetailSerializer,
     CommentDetailSerializer,
 )
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, IsAuthor
 
 
 # POSTS VIEWS
@@ -58,7 +58,7 @@ class PostLikeView(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         post = Post.objects.get(pk=pk)
         user = request.user
         if user.is_authenticated and post:
@@ -76,7 +76,7 @@ class PostDislikeView(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         post = Post.objects.get(pk=pk)
         user = request.user
         if user.is_authenticated and post:
@@ -95,7 +95,7 @@ class CommentLikeView(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         comment = Comment.objects.get(pk=pk)
         user = request.user
         if user.is_authenticated and comment:
@@ -114,7 +114,7 @@ class CommentDislikeView(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         comment = Comment.objects.get(pk=pk)
         user = request.user
         if user.is_authenticated and comment:
@@ -131,7 +131,7 @@ class CommentDislikeView(APIView):
 
 class CommentDetailView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthor]
     serializer_class = CommentDetailSerializer
     lookup_field = 'pk'
     queryset = Comment.objects.all()
