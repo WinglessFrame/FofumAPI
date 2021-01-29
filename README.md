@@ -1,7 +1,7 @@
 ## **Forum API project**
 ### ~~My first django-rest task project~~  😁 
 #### Django-rest forum API
-###This project contains two apps:
+### This project contains two apps:
 * ##### *accounts* - managing JWT registration and authentication
 * ##### *Forum* - forum logic
 ## Cool features:
