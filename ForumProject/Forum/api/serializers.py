@@ -161,10 +161,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return reverse('forum-api:post-comment', args=[obj.pk], request=request)
 
-    def get_to_comment(self, obj):
-        request = self.context.get('request')
-        return reverse('forum-api:post-comment', args=[obj.pk], request=request)
-
     def get_comments(self, obj):
         context = self.context
         objects = obj.comments.all()
