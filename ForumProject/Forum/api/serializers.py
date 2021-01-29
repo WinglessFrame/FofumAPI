@@ -156,6 +156,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
     dislike_undislike_url = serializers.SerializerMethodField()
     to_comment = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    
+    def get_to_comment(self, obj):
+        request = self.context.get('request')
+        return reverse('forum-api:post-comment', args=[obj.pk], request=request)
 
     def get_to_comment(self, obj):
         request = self.context.get('request')
