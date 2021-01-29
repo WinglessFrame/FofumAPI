@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework import authentication
 from django.shortcuts import redirect
 
-
 from ..models import Post, Comment, Category
 from .serializers import (
     PostListSerializer,
@@ -94,7 +93,6 @@ class PostDislikeView(APIView):
 class CommentLikeView(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
 
     def post(self, request, pk):
         comment = Comment.objects.get(pk=pk)
