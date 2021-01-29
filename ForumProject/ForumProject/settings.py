@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     # Site-packages apps
     'rest_framework',
     'mptt',
+    'drf_spectacular',
     # Local apps
     'Forum',
     'accounts',
@@ -107,6 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Rest framework
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',

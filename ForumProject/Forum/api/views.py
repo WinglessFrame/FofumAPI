@@ -167,7 +167,7 @@ class CommentCreateView(CreateAPIView):
         return redirect('forum-api:post-detail', pk=post_pk)
 
 
-# USER STATISTICS
+    # USER STATISTICS
 class UserStatisticsView(ListAPIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
