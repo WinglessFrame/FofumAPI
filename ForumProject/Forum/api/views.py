@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import authentication
 from django.shortcuts import redirect
 
+
 from ..models import Post, Comment, Category
 from .serializers import (
     PostListSerializer,
@@ -43,7 +44,6 @@ class PostListAPIView(ListCreateAPIView):
             return Response({'message': 'Authorization is required'}, status=403)
         obj = Post.objects.create(title=title, text=text, category=category, author=author)
         return redirect('forum-api:post-detail', pk=obj.pk)
-
 
 
 class PostDetailAPIView(RetrieveUpdateDestroyAPIView):
@@ -94,6 +94,7 @@ class PostDislikeView(APIView):
 class CommentLikeView(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+
 
     def post(self, request, pk):
         comment = Comment.objects.get(pk=pk)

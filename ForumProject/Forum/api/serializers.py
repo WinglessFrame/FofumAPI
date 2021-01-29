@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from django.contrib.auth import get_user_model
+
 from ..models import Post, Comment
 
 User = get_user_model()
@@ -102,6 +103,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
             'text',
         )
 
+
 # POST SERIALIZERS
 class PostListSerializer(serializers.ModelSerializer):
     like_counter = serializers.SerializerMethodField()
@@ -116,7 +118,15 @@ class PostListSerializer(serializers.ModelSerializer):
         return obj.dislikes.count()
 
     def get_comments_count(self, obj):
-        return obj.comments.count()
+        if obj.comments.count() == 0:
+            return 0
+        else:
+            comments = obj.comments.all()
+            total = 0
+            for parent_comment in comments:
+                comment_family = parent_comment.get_family()
+                total += comment_family.count()
+            return total
 
     def get_detail(self, obj):
         request = self.context.get('request')
@@ -146,10 +156,76 @@ class PostDetailSerializer(serializers.ModelSerializer):
     dislike_undislike_url = serializers.SerializerMethodField()
     to_comment = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
-
+    
     def get_to_comment(self, obj):
         request = self.context.get('request')
         return reverse('forum-api:post-comment', args=[obj.pk], request=request)
+
+    def get_comments(self, obj):
+        context = self.context
+        objects = obj.comments.all()
+        serializer = CommentSerializer(objects, many=True, context=context)
+        return serializer.data
+
+    def get_like_counter(self, obj):
+        return obj.likes.count()
+
+
+    def get_dislike_counter(self, obj):
+        return obj.dislikes.count()
+
+    def get_like_unlike_url(self, obj):
+        request = self.context.get('request')
+        if request.user in obj.dislikes.all():
+            return "Undislike post first"
+        return reverse('forum-api:post-like', args=[obj.pk], request=request)
+
+    def get_dislike_undislike_url(self, obj):
+        request = self.context.get('request')
+        if request.user in obj.likes.all():
+            return "Unlike post first"
+        return reverse('forum-api:post-dislike', args=[obj.pk], request=request)
+
+    def get_like_dislike_status(self, obj):
+        request = self.context.get('request')
+        user = request.user
+        if user.is_authenticated:
+            status = obj in user.post_likes.all()
+            if status:
+                return "liked"
+            else:
+                status = obj in user.post_dislikes.all()
+                if status:
+                    return "disliked"
+                else:
+                    return "not-rated"
+        else:
+            return "Requires authentication"
+
+    class Meta:
+        model = Post
+        fields = (
+            'title',
+            'text',
+            'category',
+            'author',
+            'created_at',
+            'updated_at',
+            'like_counter',
+            'dislike_counter',
+            'like_dislike_status',
+            'like_unlike_url',
+            'dislike_undislike_url',
+            'comments',
+        )
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    like_counter = serializers.SerializerMethodField()
+    like_status = serializers.SerializerMethodField()
+    like_url = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True, read_only=True)
+    category = serializers.SerializerMethodField()
 
     def get_comments(self, obj):
         context = self.context
