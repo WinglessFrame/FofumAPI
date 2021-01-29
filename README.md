@@ -12,4 +12,5 @@
     
 ## Things I would like to add in the future:
 - [ ] Cover apps separately  with django, django-rest tests
+- [ ] Optimize code (like and dislike logic in post and comment views almost the same, but idk how to optimize code)
     
