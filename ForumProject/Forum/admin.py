@@ -3,8 +3,8 @@ from .models import Post, Category, Comment
 
 
 class PostAdmin(admin.ModelAdmin):
-
     list_display = ('pk', 'author', 'title', 'is_published', 'text', 'category')
+    list_editable = ('is_published',)
 
 
 class CommentAdmin(admin.ModelAdmin):

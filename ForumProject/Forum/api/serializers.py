@@ -1,11 +1,7 @@
 from rest_framework import serializers
-
 from rest_framework.reverse import reverse
 from django.contrib.auth import get_user_model
 
-
-from rest_framework.reverse import reverse
-from django.contrib.auth import get_user_model
 from ..models import Post, Comment
 
 User = get_user_model()
@@ -19,6 +15,20 @@ class CommentSerializer(serializers.ModelSerializer):
     dislike_undislike_url = serializers.SerializerMethodField()
     like_counter = serializers.SerializerMethodField()
     dislike_counter = serializers.SerializerMethodField()
+    change = serializers.SerializerMethodField()
+    to_comment = serializers.SerializerMethodField()
+
+    def get_to_comment(self, obj):
+        request = self.context.get('request')
+        related_to = self.context.get('related_to')
+        return reverse('forum-api:comment-comment', args=[related_to, obj.pk], request=request)
+
+    def get_change(self, obj):
+        request = self.context.get('request')
+        if request.user == obj.author:
+            return reverse('forum-api:comment-detail', args=[obj.pk], request=request)
+        else:
+            return "Forbidden"
 
     def get_like_counter(self, obj):
         return obj.likes.count()
@@ -36,12 +46,16 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_dislike_undislike_url(self, obj):
         request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
         if obj in request.user.comment_likes.all():
             return "Unlike post first"
         return reverse('forum-api:comment-dislike', args=[obj.pk], request=request)
 
     def get_like_unlike_url(self, obj):
         request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
         if obj in request.user.comment_dislikes.all():
             return "Undislike post first"
         return reverse('forum-api:comment-like', args=[obj.pk], request=request)
@@ -49,6 +63,8 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_like_dislike_status(self, obj):
         request = self.context.get('request')
         user = request.user
+        if user.is_anonymous:
+            return "Authorization required"
         if user.is_authenticated:
             status = obj in user.comment_likes.all()
             if status:
@@ -74,7 +90,17 @@ class CommentSerializer(serializers.ModelSerializer):
             'like_dislike_status',
             'like_unlike_url',
             'dislike_undislike_url',
+            'change',
+            'to_comment',
             'related_comments',
+        )
+
+
+class CommentDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = (
+            'text',
         )
 
 
@@ -128,7 +154,12 @@ class PostDetailSerializer(serializers.ModelSerializer):
     like_dislike_status = serializers.SerializerMethodField()
     like_unlike_url = serializers.SerializerMethodField()
     dislike_undislike_url = serializers.SerializerMethodField()
+    to_comment = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    
+    def get_to_comment(self, obj):
+        request = self.context.get('request')
+        return reverse('forum-api:post-comment', args=[obj.pk], request=request)
 
     def get_comments(self, obj):
         context = self.context
@@ -196,24 +227,53 @@ class PostDetailSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
     category = serializers.SerializerMethodField()
 
-    def get_category(self, obj):
-        return obj.category.title
+    def get_comments(self, obj):
+        context = self.context
+        objects = obj.comments.all()
+        context['related_to'] = obj.pk
+        root_objects = [el for el in objects if el.is_root_node()]  # To remove duplicates
+        serializer = CommentSerializer(root_objects, many=True, context=context)
+        return serializer.data
 
     def get_like_counter(self, obj):
         return obj.likes.count()
 
-    def get_like_url(self, obj):
+    def get_dislike_counter(self, obj):
+        return obj.dislikes.count()
+
+    def get_like_unlike_url(self, obj):
         request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
+        if request.user in obj.dislikes.all():
+            return "Undislike post first"
         return reverse('forum-api:post-like', args=[obj.pk], request=request)
 
-    def get_like_status(self, obj):
+    def get_dislike_undislike_url(self, obj):
+        request = self.context.get('request')
+        if request.user.is_anonymous:
+            return "Authorization required"
+        if request.user in obj.likes.all():
+            return "Unlike post first"
+        return reverse('forum-api:post-dislike', args=[obj.pk], request=request)
+
+    def get_like_dislike_status(self, obj):
         request = self.context.get('request')
         user = request.user
+        if user.is_anonymous:
+            return "Authorization required"
         if user.is_authenticated:
-            status = (obj in user.post_likes.all())
-            return status
-        else: return "Requires authentication"
-
+            status = obj in user.post_likes.all()
+            if status:
+                return "liked"
+            else:
+                status = obj in user.post_dislikes.all()
+                if status:
+                    return "disliked"
+                else:
+                    return "not-rated"
+        else:
+            return "Requires authentication"
 
     class Meta:
         model = Post
@@ -225,7 +285,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'like_counter',
-
-            'like_status',
-            'like_url',
+            'dislike_counter',
+            'like_dislike_status',
+            'like_unlike_url',
+            'dislike_undislike_url',
+            'to_comment',
+            'comments',
         )

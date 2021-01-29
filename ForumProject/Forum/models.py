@@ -36,7 +36,7 @@ class Post(models.Model):
 class Comment(MPTTModel):
     text = models.TextField(null=False, blank=False)
     author = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
-    related_to = models.ForeignKey(Post, blank=True, null=True, on_delete=models.CASCADE, related_name='comments')
+    related_to = models.ForeignKey(Post, blank=False, null=True, on_delete=models.CASCADE, related_name='comments')
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -45,9 +45,7 @@ class Comment(MPTTModel):
 
     def __str__(self):
         if self.is_root_node():
-            return f"{self.related_to.pk}/Root comment {self.pk}"
-        else:
-            return f'{self.parent}/{self.pk}'
+            return f"{self.related_to.pk}/{self.pk}"
 
     #
     # class MPTTMeta:
