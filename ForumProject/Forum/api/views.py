@@ -1,4 +1,5 @@
 from rest_framework.generics import (
+    ListAPIView,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     CreateAPIView,
@@ -8,14 +9,18 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import authentication
 from django.shortcuts import redirect
+from django.contrib.auth import get_user_model
 
 from ..models import Post, Comment, Category
 from .serializers import (
     PostListSerializer,
     PostDetailSerializer,
     CommentDetailSerializer,
+    UserStatisticsSerializer,
 )
 from .permissions import IsAuthorOrReadOnly, IsAuthor
+
+User = get_user_model()
 
 
 # POSTS VIEWS
@@ -160,3 +165,11 @@ class CommentCreateView(CreateAPIView):
         else:
             Comment.objects.create(text=text, author=author, related_to=related_to)
         return redirect('forum-api:post-detail', pk=post_pk)
+
+
+# USER STATISTICS
+class UserStatisticsView(ListAPIView):
+    authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserStatisticsSerializer
+    queryset = User.objects.filter(is_active=True)

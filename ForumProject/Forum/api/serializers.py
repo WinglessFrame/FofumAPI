@@ -156,7 +156,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     dislike_undislike_url = serializers.SerializerMethodField()
     to_comment = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
-    
+
     def get_to_comment(self, obj):
         request = self.context.get('request')
         return reverse('forum-api:post-comment', args=[obj.pk], request=request)
@@ -215,5 +215,40 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'like_dislike_status',
             'like_unlike_url',
             'dislike_undislike_url',
+            'to_comment',
             'comments',
+        )
+
+
+class UserStatisticsSerializer(serializers.ModelSerializer):
+    total_likes = serializers.SerializerMethodField()
+    total_dislikes = serializers.SerializerMethodField()
+    total_posts = serializers.SerializerMethodField()
+    total_published_posts = serializers.SerializerMethodField()
+    total_comments = serializers.SerializerMethodField()
+
+    def get_total_likes(self, obj):
+        return obj.post_likes.count() + obj.comment_likes.count()
+
+    def get_total_dislikes(self, obj):
+        return obj.post_dislikes.count() + obj.comment_dislikes.count()
+
+    def get_total_posts(self, obj):
+        return obj.posts.count()
+
+    def get_total_published_posts(self, obj):
+        return len(obj.posts.filter(is_published=True))
+
+    def get_total_comments(self, obj):
+        return obj.comments.count()
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'total_likes',
+            'total_dislikes',
+            'total_posts',
+            'total_published_posts',
+            'total_comments',
         )

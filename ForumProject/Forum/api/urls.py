@@ -9,6 +9,7 @@ from .views import (
     CommentLikeView,
     CommentDetailView,
     CommentCreateView,
+    UserStatisticsView,
 )
 
 
@@ -23,4 +24,5 @@ urlpatterns = [
     path('comments/<int:pk>/dislike/', CommentDislikeView.as_view(), name='comment-dislike'),
     re_path(r'(?P<post_pk>\d+)/(?P<comment_pk>\d+)/comment/', CommentCreateView.as_view(), name='comment-comment'),
     re_path(r'(?P<post_pk>\d+)/comment/', CommentCreateView.as_view(), name='post-comment'),
+    path('users/', UserStatisticsView.as_view(), name='user-stat')
 ]
