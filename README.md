@@ -7,6 +7,7 @@
 ## Cool features:
 * #### I used [mptt](https://github.com/django-mptt/django-mptt) for comment model to create reddit-like comments for posts and decrease amount of queries to database
 * #### As database i used PostgreSQL
+* #### I used [simpleJWT](https://github.com/SimpleJWT/django-rest-framework-simplejwt) as auth system
 * #### I generated API docs using [drf-spectacular](https://github.com/tfranzel/drf-spectacular) ***They are not perfect as in some places i used weired logic for code (for example, custom token obtain endpoint in accounts app)***
     * #### To open docs go to the _/api/schema/swagger-ui/_ endpoint
     
